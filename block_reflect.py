@@ -1,4 +1,4 @@
-# import wiringpi as wp
+import wiringpi as wp
 import numpy as np
 import time
 
@@ -12,13 +12,18 @@ class Reflection():
         self.w = len(pinLed_X)
         self.h = len(pinLed_Y)
 
-        # wp.wiringPiSetupSys()
-        # for led in pinLed_X+pinLed_Y:
-        #     wp.pinMode(led, wp.GPIO.OUTPUT)
+        wp.wiringPiSetupSys()
+        for led in pinLed_X+pinLed_Y:
+            wp.pinMode(led, wp.GPIO.OUTPUT)
 
 
     def lightup(self, matrix, sec):
         start_time = time.time()
+
+        for led_x in self.pinLed_X:
+            wp.digitalWrite(led_x, wp.GPIO.LOW)
+        for led_y in self.pinLed_Y:
+            wp.digitalWrite(led_y, wp.GPIO.LOW)        
 
         try:
             while time.time() - start_time > sec:
@@ -30,6 +35,10 @@ class Reflection():
                             time.sleep(0.01)
                             wp.digitalWrite(self.pinLed_X[idx], wp.GPIO.LOW)
                             wp.digitalWrite(self.pinLed_Y[idy], wp.GPIO.LOW)
+                        else:
+                            wp.digitalWrite(self.pinLed_X[idx], wp.GPIO.LOW)
+                            wp.digitalWrite(self.pinLed_Y[idy], wp.GPIO.HIGH)
+
         finally:
             for led_x in self.pinLed_X:
                 wp.digitalWrite(led_x, wp.GPIO.LOW)
@@ -59,10 +68,14 @@ class Reflection():
 
 
 if __name__ == "__main__":
-    ref = Reflection(range(9), range(9))
+    pinLed_X = [5, 6, 13, 19, 26]
+    pinLed_Y = [25, 8, 7, 12, 16, 20, 21]
+    ref = Reflection(pinLed_X, pinLed_Y)
     ref.initialize_matrix(3, 2)
-    for _ in range(100):
-        ref.nextmatrix()
+
+
+    # for _ in range(100):
+    #     ref.nextmatrix()
         
-        print(f"\r{ref.matrix}\033[8A", end="")
-        time.sleep(0.1)
+    #     print(f"\r{ref.matrix}\033[8A", end="")
+    #     time.sleep(0.1)
